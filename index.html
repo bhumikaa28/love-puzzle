@@ -5,17 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Love Puzzle ❤️</title>
   <style>
+    /* --- Page Styling --- */
     body {
       margin: 0;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
-      background: #fce4ec;
+      background: #b76e79; /* Rusted pink background */
       overflow: hidden;
       font-family: Arial, sans-serif;
     }
 
+    /* --- Puzzle Container --- */
     #puzzle {
       width: 320px;
       height: 320px;
@@ -24,26 +26,34 @@
       gap: 2px;
     }
 
+    /* --- Puzzle Pieces --- */
     .piece {
       width: 80px;
       height: 80px;
       background-image: url("photo.jpg");
       background-size: 320px 320px;
       cursor: pointer;
+      transition: outline 0.2s;
     }
 
+    /* --- Heart Styles --- */
     .heart {
       position: fixed;
-      top: -20px;
-      font-size: 22px;
+      top: -50px;
       color: #e91e63;
-      animation: fall 4s linear forwards;
       z-index: 9999;
+      animation-name: fall;
+      animation-timing-function: linear;
+      animation-fill-mode: forwards;
     }
 
     @keyframes fall {
-      to {
-        transform: translateY(110vh);
+      0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(110vh) rotate(360deg);
         opacity: 0;
       }
     }
@@ -60,10 +70,12 @@
       let first = null;
       let solvedOnce = false;
 
+      // --- Create shuffled puzzle positions ---
       for (let i = 0; i < 16; i++) positions.push(i);
       positions.sort(() => Math.random() - 0.5);
 
-      positions.forEach((pos, index) => {
+      // --- Create puzzle pieces ---
+      positions.forEach((pos) => {
         const piece = document.createElement("div");
         piece.className = "piece";
         piece.style.backgroundPosition =
@@ -73,6 +85,7 @@
         puzzle.appendChild(piece);
       });
 
+      // --- Swap pieces on click ---
       function swap(piece) {
         if (!first) {
           first = piece;
@@ -93,19 +106,7 @@
         }
       }
 
-      function launchHearts() {
-        for (let i = 0; i < 40; i++) {
-          const heart = document.createElement("div");
-          heart.className = "heart";
-          heart.innerText = "❤️";
-          heart.style.left = Math.random() * 100 + "vw";
-          heart.style.animationDuration = (2 + Math.random() * 2) + "s";
-
-          document.body.appendChild(heart);
-          setTimeout(() => heart.remove(), 4000);
-        }
-      }
-
+      // --- Check if puzzle is solved ---
       function checkSolved() {
         const pieces = document.querySelectorAll(".piece");
         let solved = true;
@@ -117,16 +118,46 @@
         if (solved && !solvedOnce) {
           solvedOnce = true;
 
+          // Play music
           const music = document.getElementById("loveMusic");
           music.volume = 0.6;
           music.play();
 
+          // Launch hearts
           launchHearts();
 
+          // Show message
           setTimeout(() => {
             alert("You solved it 🧩❤️\nI love you forever.");
           }, 300);
         }
+      }
+
+      // --- Launch continuous hearts ---
+      function launchHearts() {
+        const totalHearts = 200;
+        const durationMin = 4;
+        const durationMax = 8;
+        const sizeMin = 15;
+        const sizeMax = 35;
+
+        for (let i = 0; i < totalHearts; i++) {
+          const heart = document.createElement("div");
+          heart.className = "heart";
+          heart.innerText = "❤️";
+
+          heart.style.left = Math.random() * 100 + "vw";
+          heart.style.fontSize = (sizeMin + Math.random() * (sizeMax - sizeMin)) + "px";
+          heart.style.animationDuration = (durationMin + Math.random() * (durationMax - durationMin)) + "s";
+          heart.style.animationDelay = Math.random() * 2 + "s";
+          heart.style.transform = `rotate(${Math.random() * 360}deg)`;
+
+          document.body.appendChild(heart);
+          setTimeout(() => heart.remove(), (durationMax + 2) * 1000);
+        }
+
+        // Repeat every 2 seconds
+        setTimeout(() => launchHearts(), 2000);
       }
     });
   </script>
