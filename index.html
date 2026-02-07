@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Love Puzzle ❤️</title>
+  <style>
+    body {
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: #fce4ec;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+    }
+
+    #puzzle {
+      width: 320px;
+      height: 320px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2px;
+    }
+
+    .piece {
+      width: 80px;
+      height: 80px;
+      background-image: url("photo.jpg");
+      background-size: 320px 320px;
+      cursor: pointer;
+    }
+
+    .heart {
+      position: fixed;
+      top: -20px;
+      font-size: 22px;
+      color: #e91e63;
+      animation: fall 4s linear forwards;
+      z-index: 9999;
+    }
+
+    @keyframes fall {
+      to {
+        transform: translateY(110vh);
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="puzzle"></div>
+  <audio id="loveMusic" src="music.mp3"></audio>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      const puzzle = document.getElementById("puzzle");
+      const positions = [];
+      let first = null;
+      let solvedOnce = false;
+
+      for (let i = 0; i < 16; i++) positions.push(i);
+      positions.sort(() => Math.random() - 0.5);
+
+      positions.forEach((pos, index) => {
+        const piece = document.createElement("div");
+        piece.className = "piece";
+        piece.style.backgroundPosition =
+          `${-(pos % 4) * 80}px ${-Math.floor(pos / 4) * 80}px`;
+        piece.dataset.current = pos;
+        piece.addEventListener("click", () => swap(piece));
+        puzzle.appendChild(piece);
+      });
+
+      function swap(piece) {
+        if (!first) {
+          first = piece;
+          piece.style.outline = "2px solid #e91e63";
+        } else {
+          const temp = first.style.backgroundPosition;
+          first.style.backgroundPosition = piece.style.backgroundPosition;
+          piece.style.backgroundPosition = temp;
+
+          const tempData = first.dataset.current;
+          first.dataset.current = piece.dataset.current;
+          piece.dataset.current = tempData;
+
+          first.style.outline = "none";
+          first = null;
+
+          checkSolved();
+        }
+      }
+
+      function launchHearts() {
+        for (let i = 0; i < 40; i++) {
+          const heart = document.createElement("div");
+          heart.className = "heart";
+          heart.innerText = "❤️";
+          heart.style.left = Math.random() * 100 + "vw";
+          heart.style.animationDuration = (2 + Math.random() * 2) + "s";
+
+          document.body.appendChild(heart);
+          setTimeout(() => heart.remove(), 4000);
+        }
+      }
+
+      function checkSolved() {
+        const pieces = document.querySelectorAll(".piece");
+        let solved = true;
+
+        pieces.forEach((p, i) => {
+          if (p.dataset.current != i) solved = false;
+        });
+
+        if (solved && !solvedOnce) {
+          solvedOnce = true;
+
+          const music = document.getElementById("loveMusic");
+          music.volume = 0.6;
+          music.play();
+
+          launchHearts();
+
+          setTimeout(() => {
+            alert("You solved it 🧩❤️\nI love you forever.");
+          }, 300);
+        }
+      }
+    });
+  </script>
+</body>
+</html>
